@@ -1,4 +1,4 @@
-package main
+package scheduler
 
 import (
 	"fmt"
@@ -63,47 +63,58 @@ func (c Cron) ConvertStringCron(cron string) (int, error) {
 	return totalTime, nil
 }
 
+var taskStorage = make(map[*Cron]Task)
+var initStage bool = false
+
 type Task interface {
 	Do()
 }
 
-type DoUp struct {
-}
-
-func (DoUp) Do() {
-	fmt.Println("Up at time ", time.Now())
-}
-
-type DoDown struct {
-}
-
-func (DoDown) Do() {
-	fmt.Println("Down at time ", time.Now())
-}
-
-func main() {
-	currentStageTime := time.Now()
-	var tasks = make(map[*Cron]Task)
-	up := Cron{
-		Name:        "Up",
-		TimeToStart: 10,
-		nextStart:   time.Now(),
-	}
-	tasks[&up] = DoUp{}
-	down := Cron{
-		Name:        "Down",
-		TimeToStart: 20,
-		nextStart:   time.Now(),
-	}
-	tasks[&down] = DoDown{}
-	for true {
-		for cron, task := range tasks {
-			if cron.nextStart.Before(currentStageTime) {
-				go task.Do()
-				duration := time.Second * time.Duration(cron.TimeToStart)
-				cron.nextStart = time.Now().Add(duration)
-			}
+func AddCron(name string, timeToStart int, task Task) (bool, error) {
+	for cron, _ := range taskStorage {
+		if cron.Name == name {
+			return false, fmt.Errorf("duplicate cron with name %v", name)
 		}
-		currentStageTime = time.Now()
 	}
+	duration := time.Second * time.Duration(timeToStart)
+	cron := Cron{
+		Name:        name,
+		TimeToStart: timeToStart,
+		nextStart:   time.Now().Add(duration),
+		count:       0,
+	}
+	taskStorage[&cron] = task
+	return true, nil
+}
+
+// InitTaskScheduler
+// Init scheduler. Can use only once in runtime.
+func InitTaskScheduler() (bool, error) {
+	fmt.Println("Tried to start scheduler")
+	if initStage {
+		return false, fmt.Errorf("scheduler has benn started already")
+	}
+	go func() {
+		currentStageTime := time.Now()
+		for true {
+			for cron, task := range taskStorage {
+				if cron.nextStart.Before(currentStageTime) {
+					go task.Do()
+					duration := time.Second * time.Duration(cron.TimeToStart)
+					cron.lastStart = cron.nextStart
+					cron.nextStart = time.Now().Add(duration)
+					if cron.count == 18446744073709551615 {
+						cron.count = 0
+						// reset test counter
+					} else {
+						cron.count = cron.count + 1
+					}
+				}
+			}
+			currentStageTime = time.Now()
+		}
+	}()
+	fmt.Println("Success start scheduler")
+	initStage = true
+	return true, nil
 }

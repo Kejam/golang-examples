@@ -1,8 +1,10 @@
-package main
+package scheduler
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestCron_ConvertStringCron(t *testing.T) {
@@ -54,3 +56,43 @@ const (
 	DAY      = 86400
 	YEAR     = 31536000
 )
+
+type DoUp struct {
+}
+
+func (DoUp) Do() {
+	fmt.Println("Up at time ", time.Now())
+}
+
+type DoDown struct {
+}
+
+func (DoDown) Do() {
+	fmt.Println("Down at time ", time.Now())
+}
+
+func TestAddCron(t *testing.T) {
+	isSchedulerStart, errorScheduler := InitTaskScheduler()
+	isDoDown, errorDoDown := AddCron("DoDown", 10, DoDown{})
+	isDoUp, errorDoUp := AddCron("DoUp", 20, DoUp{})
+
+	assert.True(t, isSchedulerStart)
+	assert.Nil(t, errorScheduler)
+	assert.True(t, isDoDown)
+	assert.Nil(t, errorDoDown)
+	assert.True(t, isDoUp)
+	assert.Nil(t, errorDoUp)
+	time.Sleep(time.Second * time.Duration(61))
+	var cronDown Cron
+	var cronUp Cron
+	for cron, _ := range taskStorage {
+		if cron.Name == "DoDown" {
+			cronDown = *cron
+		}
+		if cron.Name == "DoUp" {
+			cronUp = *cron
+		}
+	}
+	assert.Equal(t, uint64(6), cronDown.count)
+	assert.Equal(t, uint64(3), cronUp.count)
+}
