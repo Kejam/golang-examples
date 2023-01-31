@@ -7,22 +7,15 @@ import (
 	"strconv"
 )
 
-func CreateRandomFile() {
-	var pwd = os.Getenv("PWD")
-	println(pwd)
-	var file, _ = os.Create(pwd + "/test.txt")
+func CreateRandomFile(path string) *os.File {
+	var file, err = os.Create(path)
+	if err != nil {
+		fmt.Println("Error create file", err)
+	}
 	for i := 0; i < 10; i++ {
-		var word = []byte(strconv.Itoa(rand.Int()))
+		var word = []byte(strconv.Itoa(rand.Intn(456456999) + 1443635317331776148))
 		file.Write(word)
 		file.WriteString("\n")
 	}
-	var offset = int64(0)
-	for i := 0; i < 10; i++ {
-		file.Seek(offset, 0)
-		b1 := make([]byte, 20)
-		n1, _ := file.Read(b1)
-		fmt.Printf("%d bytes: %s\n", n1, string(b1[:n1]))
-		offset += 20
-	}
-
+	return file
 }
