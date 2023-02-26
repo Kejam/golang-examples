@@ -27,7 +27,7 @@ func TestSocketFileSender(t *testing.T) {
 	// Init file
 	file := CreateRandomFile(pwd + "/sender/test.txt")
 
-	go func() {
+	go func() string {
 		fmt.Println("Try to start server")
 		listen, err := net.Listen("tcp", ":8013")
 		if err != nil {
