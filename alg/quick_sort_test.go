@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -42,9 +43,73 @@ func staircase(n int32) {
 	}
 }
 
+func TestMiniMaxSum(t *testing.T) {
+	miniMaxSum([]int32{942381765, 627450398, 954173620, 583762094, 236817490})
+}
+
 func miniMaxSum(arr []int32) {
 	// Write your code here
+	var skipIndex = 0
+	var min int64 = 9223372036854775807
+	var max int64 = 0
+	for i := 0; i < len(arr); i++ {
+		var sum int64 = 0
+		for y, element := range arr {
+			if y != skipIndex {
+				sum += int64(element)
+			}
+		}
+		if sum <= min {
+			min = sum
+		}
+		if sum >= max {
+			max = sum
+		}
+		skipIndex++
+	}
+	fmt.Println(min, max)
+}
 
+func TestTimeConversion(t *testing.T) {
+	fmt.Println(timeConversion("12:05:39AM"))
+	fmt.Println(timeConversion("12:45:54PM"))
+}
+
+func timeConversion(s string) string {
+	// Write your code here
+	var timePeriod = s[len(s)-2:]
+	var hour, _ = strconv.Atoi(s[:2])
+	if timePeriod == "PM" && hour == 12 {
+		var result = "12" + s[2:8]
+		return result
+	}
+	if timePeriod == "PM" {
+		hour += 12
+		var result = strconv.Itoa(hour) + s[2:8]
+		return result
+	} else if timePeriod == "AM" && hour == 12 {
+		var result = "00" + s[2:8]
+		return result
+	} else {
+		return s[:8]
+	}
+}
+
+func birthdayCakeCandles(candles []int32) int32 {
+	// Write your code here
+	var max int32 = 0
+	for _, candle := range candles {
+		if candle > max {
+			max = candle
+		}
+	}
+	var result int32 = 0
+	for _, candle := range candles {
+		if candle == max {
+			result++
+		}
+	}
+	return result
 }
 
 func TestDiagonalDifference(t *testing.T) {
