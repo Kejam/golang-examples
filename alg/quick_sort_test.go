@@ -12,6 +12,8 @@ import (
 )
 
 func TestFindMin(t *testing.T) {
+	assert.Equal(t, 0, findMin([]int{0, 2, 2, 2}))
+	assert.Equal(t, 1, findMin([]int{1, 3, 3}))
 	assert.Equal(t, 1, findMin([]int{2, 3, 4, 5, 1}))
 	assert.Equal(t, 1, findMin([]int{3, 1, 2}))
 	assert.Equal(t, 1, findMin([]int{1, 2}))
@@ -22,11 +24,43 @@ func findMin(nums []int) int {
 	if size == 1 {
 		return nums[0]
 	}
+	if size == 2 {
+		if nums[0] <= nums[1] {
+			return nums[0]
+		} else {
+			return nums[1]
+		}
+	}
 	index := size / 2
+	if nums[index] == nums[index+1] && nums[index] == nums[index-1] {
+		step := 2
+		checkMiddle := true
+		for {
+			if index+step < size {
+				if nums[index] > nums[index+step] {
+					checkMiddle = false
+					break
+				}
+			}
+			if index-step >= 0 {
+				if nums[index] > nums[index-step] {
+					checkMiddle = false
+					break
+				}
+			}
+			if index+step > size && index-step < 0 {
+				break
+			}
+			step++
+		}
+		if checkMiddle {
+			return nums[index]
+		}
+	}
 	if index+1 == size {
 		index--
 	}
-	if nums[index] >= nums[index+1] {
+	if nums[index] > nums[index+1] {
 		return nums[index+1]
 	}
 	for {
@@ -34,7 +68,7 @@ func findMin(nums []int) int {
 		if index-1 < 0 {
 			checkToSize = size - 1
 		}
-		if nums[index] <= nums[checkToSize] {
+		if nums[index] < nums[checkToSize] {
 			return nums[index]
 		}
 		if index-1 < 0 {
