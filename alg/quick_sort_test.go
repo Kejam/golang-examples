@@ -11,6 +11,59 @@ import (
 	"testing"
 )
 
+func TestFindMin(t *testing.T) {
+	assert.Equal(t, 1, findMin([]int{2, 3, 4, 5, 1}))
+	assert.Equal(t, 1, findMin([]int{3, 1, 2}))
+	assert.Equal(t, 1, findMin([]int{1, 2}))
+}
+
+func findMin(nums []int) int {
+	size := len(nums)
+	if size == 1 {
+		return nums[0]
+	}
+	index := size / 2
+	if index+1 == size {
+		index--
+	}
+	if nums[index] >= nums[index+1] {
+		return nums[index+1]
+	}
+	for {
+		checkToSize := index - 1
+		if index-1 < 0 {
+			checkToSize = size - 1
+		}
+		if nums[index] <= nums[checkToSize] {
+			return nums[index]
+		}
+		if index-1 < 0 {
+			index = size
+		}
+		index--
+	}
+}
+
+func TestThreeConsecutiveOdds(t *testing.T) {
+	assert.Equal(t, false, threeConsecutiveOdds([]int{2, 6, 4, 1}))
+	assert.Equal(t, true, threeConsecutiveOdds([]int{1, 2, 34, 3, 4, 5, 7, 23, 12}))
+}
+
+func threeConsecutiveOdds(arr []int) bool {
+	countOfOdds := 0
+	for i := 0; i < len(arr); i++ {
+		if arr[i]&1 == 1 {
+			countOfOdds++
+			if countOfOdds == 3 {
+				return true
+			}
+		} else {
+			countOfOdds = 0
+		}
+	}
+	return false
+}
+
 func TestInt(t *testing.T) {
 	var ar = []int64{1000000001, 1000000002, 1000000003, 1000000004, 1000000005}
 	fmt.Println(aVeryBigSum(ar))
