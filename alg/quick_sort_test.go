@@ -3,6 +3,7 @@ package alg
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/exp/rand"
 	"math"
 	"runtime"
 	"strconv"
@@ -14,6 +15,94 @@ import (
 
 func fib(n int) int {
 	return fibi[n]
+}
+
+func TestGenerateTheString(t *testing.T) {
+	assert.Equal(t, "", generateTheString(4))
+}
+
+func TestMergeAlternately(t *testing.T) {
+	assert.Equal(t, "apbqrs", mergeAlternately("ab", "pqrs"))
+	assert.Equal(t, "apbqcr", mergeAlternately("abc", "pqr"))
+}
+
+func mergeAlternately(word1 string, word2 string) string {
+	var res = ""
+	var left = true
+	for {
+		if 0 == len(word1) {
+			res += word2
+			break
+		}
+		if 0 == len(word2) {
+			res += word1
+			break
+		}
+		if left {
+			res += string(word1[0])
+			if len(word1) != 1 {
+				word1 = word1[1:]
+			} else {
+				word1 = ""
+			}
+			left = false
+		} else {
+			res += string(word2[0])
+			if len(word2) != 1 {
+				word2 = word2[1:]
+			} else {
+				word2 = ""
+			}
+			left = true
+		}
+		if 0 == len(word1) && 0 == len(word2) {
+			break
+		}
+	}
+	return res
+}
+
+func kidsWithCandies(candies []int, extraCandies int) []bool {
+	var max = 0
+	for _, el := range candies {
+		if max < el {
+			max = el
+		}
+	}
+	var res = make([]bool, len(candies))
+	for i, el := range candies {
+		if el+extraCandies >= max {
+			res[i] = true
+		} else {
+			res[i] = false
+		}
+	}
+	return res
+}
+
+func generateTheString(n int) string {
+	var alphabet = []string{
+		"q", "w", "e", "r", "t", "y", "u", "i", "o", "p",
+		"a", "s", "d", "f", "g", "h", "j", "k", "l", "x", "c", "v", "b", "n", "m",
+	}
+	var doubles = make(map[string]bool)
+	var result = ""
+	for i := 0; i < n; i++ {
+		letter := alphabet[rand.Intn(len(alphabet))]
+		if doubles[letter] == true {
+			if len(result)+1 < n {
+				result += letter
+				result += letter
+				i++
+			} else {
+				result += "z"
+			}
+		} else {
+			result += letter
+			doubles[letter] = true
+		}
+	}
+	return result
 }
 
 func TestRemoveDuplicates(t *testing.T) {
