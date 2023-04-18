@@ -123,6 +123,42 @@ func aVeryBigSum(ar []int64) int64 {
 	return result
 }
 
+func TestLongestCons(t *testing.T) {
+	assert.Equal(t, 4, longestConsecutive([]int{100, 4, 200, 1, 3, 2}))
+	assert.Equal(t, 9, longestConsecutive([]int{0, 3, 7, 2, 5, 8, 4, 6, 0, 1}))
+}
+
+func longestConsecutive(nums []int) int {
+	mapNum := make(map[int]bool)
+	for _, num := range nums {
+		mapNum[num] = true
+	}
+	var result = 0
+	for key, value := range mapNum {
+		var len = 0
+		if value {
+			len++
+			mapNum[key] = false
+			var index = 1
+			for mapNum[key+index] == true {
+				mapNum[key+index] = false
+				index++
+				len++
+			}
+			var indexMin = -1
+			for mapNum[key+indexMin] == true {
+				mapNum[key+indexMin] = false
+				indexMin--
+				len++
+			}
+			if len > result {
+				result = len
+			}
+		}
+	}
+	return result
+}
+
 func TestStaircase(t *testing.T) {
 	staircase(5)
 }
