@@ -3,6 +3,7 @@ package alg
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"math"
 	"runtime"
 	"strconv"
 	"strings"
@@ -13,6 +14,67 @@ import (
 
 func fib(n int) int {
 	return fibi[n]
+}
+
+func TestRemoveDuplicates(t *testing.T) {
+	assert.Equal(t, 2, removeDuplicates([]int{1, 1, 2}))
+}
+
+func removeDuplicates(nums []int) int {
+	var res = make(map[int]bool)
+	var index = 0
+	for _, el := range nums {
+		if res[el] == false {
+			res[el] = true
+			nums[index] = el
+			index++
+		}
+	}
+	return len(res)
+}
+
+func TestMidiadnTwoSortedArrays(t *testing.T) {
+	assert.Equal(t, float64(2), findMedianSortedArrays([]int{1, 3}, []int{2}))
+	assert.Equal(t, float64(2.5), findMedianSortedArrays([]int{1, 2}, []int{3, 4}))
+}
+
+func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
+	var arr = make([]int, 0)
+	var i1 = 0
+	var i2 = 0
+	for {
+		if i1 == len(nums1) {
+			for i2 != len(nums2) {
+				arr = append(arr, nums2[i2])
+				i2++
+			}
+			break
+		}
+		if i2 == len(nums2) {
+			for i1 != len(nums1) {
+				arr = append(arr, nums1[i1])
+				i1++
+			}
+			break
+		}
+		if nums1[i1] > nums2[i2] {
+			arr = append(arr, nums2[i2])
+			i2++
+		} else {
+			arr = append(arr, nums1[i1])
+			i1++
+		}
+		if i1 == len(nums1) && i2 == len(nums2) {
+			break
+		}
+	}
+	if len(arr)%2 == 0 {
+		index := len(arr)/2 - 1
+		return (float64(arr[index]) + float64(arr[index+1])) / 2
+	} else {
+		index2 := math.Round(float64(len(arr))/2) - 1
+		return float64(arr[int(index2)])
+	}
 }
 
 var fibi = []int{
